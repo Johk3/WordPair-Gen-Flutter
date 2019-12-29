@@ -29,14 +29,14 @@ class CarDatabase {
   Future<Database> init() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String dbPath = join(directory.path, 'database.db');
-    var database = openDatabase(dbPath, version: 1, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    var database = openDatabase(dbPath, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
 
     return database;
   }
 
   void _onCreate(Database db, int version) {
     db.execute('''
-      CREATE TABLE car(
+      CREATE TABLE IF NOT EXISTS car(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         pair TEXT)
     ''');
@@ -45,6 +45,12 @@ class CarDatabase {
 
   void _onUpgrade(Database db, int oldVersion, int newVersion) {
     // Run migration according database versions
+  }
+
+  Future dropDB() async{
+    var client = await db;
+    client.execute("DROP TABLE car");
+    print("Database dropped");
   }
 
   Future<int> addCar(Car car) async {

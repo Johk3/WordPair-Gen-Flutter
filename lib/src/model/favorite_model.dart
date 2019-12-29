@@ -10,9 +10,9 @@ class Car {
 
   Car({this.id, this.pair});
 
-  Car.random()
-      : this.id = null,
-        this.pair = 'Random ${1 + Random().nextInt(6)}';
+  Car.random(int inID, String inPair)
+      : this.id = inID,
+        this.pair = inPair;
 
   Car.fromDb(Map<String, dynamic> map)
       : id = map['id'],

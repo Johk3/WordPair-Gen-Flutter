@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'screens/interact_db.dart';
+import 'database/database.dart';
+import 'model/favorite_model.dart';
+import 'dart:math';
 
-
-class DatabaseAction extends StatefulWidget{
-  @override
-  DatabaseActionState createState() => DatabaseActionState();
-}
-
-class DatabaseActionState extends State<DatabaseAction>{
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Pair Database'),
-        ),
-        body: MainPage(),
-      ),
-    );
-  }
-}
 
 
 class RandomWords extends StatefulWidget{
@@ -31,6 +14,18 @@ class RandomWords extends StatefulWidget{
 class RandomWordsState extends State<RandomWords>{
   final _randomWordPairs = <WordPair>[];
   final _savedWordPairs = Set<WordPair>(); // Set doesnt allow duplicates
+  int check = 0;
+
+  // Cars are the favorites
+  @override
+  void initState() {
+    print("Running initState");
+    super.initState();
+    setupList();
+  }
+
+  final db = CarDatabase();
+  List<Car> cars = [];
 
   Widget _buildList(){
     return ListView.builder(
@@ -59,7 +54,14 @@ class RandomWordsState extends State<RandomWords>{
           if(alreadySaved){
             _savedWordPairs.remove(pair);
           }else{
+            // Adding the wordpairs into the DB
+            var rng = new Random();
+            int id = 0;
+            for (var i = 0; i < 10; i++) {
+              id += rng.nextInt(1000);
+            }
             _savedWordPairs.add(pair);
+            onFavoritePressed(id, pair.asPascalCase);
           }
 
         });
@@ -107,4 +109,41 @@ class RandomWordsState extends State<RandomWords>{
       body: _buildList()
     );
   }
+
+  onDelete(int id) async {
+    await db.removeCar(id);
+    db.fetchAll().then((carDb) => cars = carDb);
+    setState(() {});
+  }
+
+  void onFavoritePressed(int id, String pair) async {
+    var car = new Car.random(id, pair);
+    await db.addCar(car);
+    setupList();
+  }
+
+  void setupList() async {
+    var _cars = await db.fetchAll();
+
+    // todo: Fix the DB showing same results, and also make it so that when the favorites are opened
+    // The DB will show all of the fetched output.
+    setState(() {
+      cars = _cars;
+    });
+
+    // Check runs only at the start to initialize the Saved WordPairs
+    if(check != 1){
+          for(int i = 0; i < cars.length; i++){
+      WordPair car = WordPair(cars[i].toMapForDb()["pair"], " ");
+      final _alreadySaved = _savedWordPairs.contains(car);
+
+      if(!_alreadySaved){
+        _savedWordPairs.add(car);
+        print("Added favorite");
+    }
+    }
+    check++;
+    }
+  }
+
 }

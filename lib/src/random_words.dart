@@ -1,5 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'screens/interact_db.dart';
+
+
+class DatabaseAction extends StatefulWidget{
+  @override
+  DatabaseActionState createState() => DatabaseActionState();
+}
+
+class DatabaseActionState extends State<DatabaseAction>{
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Pair Database'),
+        ),
+        body: MainPage(),
+      ),
+    );
+  }
+}
 
 
 class RandomWords extends StatefulWidget{

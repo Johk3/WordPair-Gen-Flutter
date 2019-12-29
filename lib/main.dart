@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'random_words.dart';
+import 'src/random_words.dart';
 
 void main() => runApp(MyApp());
 // Continue youtube video at 23.18
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context){
     return MaterialApp(
       theme: ThemeData(primaryColor: Colors.purple),
-      home: RandomWords()
+      home: DatabaseAction()
     );
   }
 }

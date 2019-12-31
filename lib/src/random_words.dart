@@ -16,7 +16,7 @@ class RandomWordsState extends State<RandomWords>{
   final _savedWordPairs = Set<WordPair>(); // Set doesnt allow duplicates
   int check = 0;
 
-  // Cars are the favorites
+  // Cars are the "favorite wordpairs"
   @override
   void initState() {
     print("Running initState");
@@ -74,8 +74,20 @@ class RandomWordsState extends State<RandomWords>{
       MaterialPageRoute(
         builder: (BuildContext context){
           final Iterable<ListTile> tiles = _savedWordPairs.map((WordPair pair){
+            final wordpairExists = _savedWordPairs.contains(pair);
+
             return ListTile(
-              title: Text(pair.asPascalCase, style: TextStyle(fontSize: 18.0))
+              title: Text(pair.asPascalCase, style: TextStyle(fontSize: 18.0)),
+              trailing: Icon(wordpairExists ? Icons.visibility_off : Icons.visibility),
+              onTap: (){
+                // Ability to remove existing favorites
+                setState(() {
+                  if(wordpairExists){
+                    _savedWordPairs.remove(pair);
+                    onDelete(pair.asPascalCase);
+                  }
+                });
+              },
             );
           });
 
@@ -98,7 +110,7 @@ class RandomWordsState extends State<RandomWords>{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Text("WordPair Generator"),
+        title: Text("ChiefDirt"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.list),
@@ -110,7 +122,7 @@ class RandomWordsState extends State<RandomWords>{
     );
   }
 
-  onDelete(int id) async {
+  onDelete(String id) async {
     await db.removeCar(id);
     db.fetchAll().then((carDb) => cars = carDb);
     setState(() {});
@@ -125,8 +137,6 @@ class RandomWordsState extends State<RandomWords>{
   void setupList() async {
     var _cars = await db.fetchAll();
 
-    // todo: Fix the DB showing same results, and also make it so that when the favorites are opened
-    // The DB will show all of the fetched output.
     setState(() {
       cars = _cars;
     });

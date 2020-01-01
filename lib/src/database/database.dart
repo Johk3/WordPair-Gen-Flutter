@@ -87,10 +87,10 @@ class CarDatabase {
         where: 'id = ?', whereArgs: [newCar.id], conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<void> removeCar(String pair) async {
-    print("Removing " + pair);
+  Future<void> removeCar(int id) async {
+    print("Removing " + id.toString());
     var client = await db;
-    return client.delete('car', where: 'UPPER(pair) = UPPER(?)', whereArgs: [pair]);
+    return client.delete('car', where: 'id = ?', whereArgs: [id]);
   }
 
   Future closeDb() async {

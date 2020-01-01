@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'database/database.dart';
@@ -26,6 +28,7 @@ class RandomWordsState extends State<RandomWords>{
 
   final db = CarDatabase();
   List<Car> cars = [];
+  Map<String, int> identification = new HashMap();
 
   Widget _buildList(){
     return ListView.builder(
@@ -84,7 +87,7 @@ class RandomWordsState extends State<RandomWords>{
                 setState(() {
                   if(wordpairExists){
                     _savedWordPairs.remove(pair);
-                    onDelete(pair.asPascalCase);
+                    onDelete(identification[pair.asLowerCase.trim()]);
                   }
                 });
               },
@@ -122,7 +125,7 @@ class RandomWordsState extends State<RandomWords>{
     );
   }
 
-  onDelete(String id) async {
+  onDelete(int id) async {
     await db.removeCar(id);
     db.fetchAll().then((carDb) => cars = carDb);
     setState(() {});
@@ -143,15 +146,16 @@ class RandomWordsState extends State<RandomWords>{
 
     // Check runs only at the start to initialize the Saved WordPairs
     if(check != 1){
-          for(int i = 0; i < cars.length; i++){
-      WordPair car = WordPair(cars[i].toMapForDb()["pair"], " ");
-      final _alreadySaved = _savedWordPairs.contains(car);
+      for(int i = 0; i < cars.length; i++){
+        identification[cars[i].toMapForDb()["pair"].toString().toLowerCase()] = cars[i].toMapForDb()["id"];
+        WordPair car = WordPair(cars[i].toMapForDb()["pair"], " ");
+        final _alreadySaved = _savedWordPairs.contains(car);
 
-      if(!_alreadySaved){
-        _savedWordPairs.add(car);
-        print("Added favorite");
-    }
-    }
+        if(!_alreadySaved){
+          _savedWordPairs.add(car);
+          print("Added favorite");
+      }
+      }
     check++;
     }
   }
